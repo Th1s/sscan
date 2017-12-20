@@ -7,7 +7,7 @@ from lib.config import command_inject_config
 import requests
 import random
 import json
-
+import chardet
 
 # command 检测模块
 # 利用ceye
@@ -32,7 +32,9 @@ class CommandInjectScanner(Scanner):
             # do scan here
             if param_position == "get":
                 random_key = ''.join(str(random.random()).split('.'))
-                string_scan_param = json.dumps(scan_param) % (random_key, self.ceye_host)
+                for payload in self.payload:
+                    string_scan_param = json.dumps(scan_param)
+                    string_scan_param = string_scan_param.decode(chardet.detect(string_scan_param)["encoding"]).encode("utf-8").replace(payload, payload % (random_key, self.ceye_host))
                 scan_param = eval(string_scan_param)
                 flag = self.doCurl(scan_param, self.data, self.header)
 
