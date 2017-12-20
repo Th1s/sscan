@@ -32,7 +32,7 @@ class SqlInjectScanner(Scanner):
 
     def deepScan(self, scan_param, param_position):
         # 判断网络延迟
-        check_param = eval((str(scan_param)).replace("sleep(5)", "user()"))
+        check_param = eval((str(scan_param)).replace("sleep(5)", "aaa()"))
         score = 0
         for i in xrange(10):
             if(self.doCurl(self.param, self.data, self.header)):

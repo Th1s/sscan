@@ -9,7 +9,10 @@
 		<script src="/static/jquery-3.2.1.min.js"></script>
 		<script src="/static/bootstrap-table.js"></script>
 		<style> 
- 			table {word-break: break-all; min-width:100px;}
+ 			table {word-break: break-all; table-layout:fixed;}
+            .table th, .table td {
+                vertical-align: middle!important;
+            }
 		</style>
 	</head>
 	<body>
@@ -36,19 +39,24 @@
             strictSearch: true,
             columns: [{
                 field: 'type',
-                title: 'type'
+                title: 'type',
+                width: '5%'
             }, {
                 field: 'method',
-                title: 'method'
+                title: 'method',
+                width: '5%'
             }, {
                 field: 'url',
-                title: 'url'
+                title: 'url',
+                width: '25%'
             }, {
                 field: 'payload',
-                title: 'payload'
+                title: 'payload',
+                width: '25%'
             }, {
                 field: 'time',
-                title: 'time'
+                title: 'time',
+                width: '10%'
             },]
 
         });

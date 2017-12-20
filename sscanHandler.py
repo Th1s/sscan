@@ -32,10 +32,13 @@ def listenRedis(r, queue, listName):
     while True:
         if r.llen(listName) > 0:
             row = r.lpop(listName)
-            rowJson = json.loads(row)
-            saveJson = solveUrlParam(rowJson)
-            #入队列
-            queue.put(saveJson)
+            try:
+                rowJson = json.loads(row)
+                saveJson = solveUrlParam(rowJson)
+                #入队列
+                queue.put(saveJson)
+            except Exception as e:
+                logging.exception(e)
         else:
             time.sleep(1)
 
@@ -49,13 +52,15 @@ def scan(r, queue, scan_modules):
             scanner = scan_module_class(row['method'], row['url'], row['header'], row['param'], row['data'])
             scanner.doWork()
             if scanner.scan_result['ret'] == 1:
-                row['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                row['type'] = module_name
-                row['payload'] = scanner.scan_result['param']
-                row['message'] = genCompleteHttpMessage(row['method'], row['url'], row['header'], row['param'], row['data'])
-                resultJson = json.dumps(row)
-                r.rpush(redis_config['http_result_name'], resultJson)
-
+                try:
+                    row['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                    row['type'] = module_name
+                    row['payload'] = scanner.scan_result['param']
+                    row['message'] = genCompleteHttpMessage(row['method'], row['url'], row['header'], row['param'], row['data'])
+                    resultJson = json.dumps(row)
+                    r.rpush(redis_config['http_result_name'], resultJson)
+                except Exception as e:
+                    logging.exception(e)
 
 # 生成原始http数据包
 def genCompleteHttpMessage(method, url, header, param, data):

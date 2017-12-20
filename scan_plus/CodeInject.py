@@ -42,17 +42,19 @@ class CodeInjectScanner(Scanner):
             # do scan here
             if param_position == "get":
                 flag = self.doCurl(scan_param, self.data, self.header)
-                if self.pq in flag.content:
-                    logging.info('code inject in %s : %s' % (self.url, scan_param))
-                    self.scan_result["param"].append(scan_param)
-                    self.scan_result["ret"] = 1
+                if flag:
+                    if self.pq in flag.content:
+                        logging.info('code inject in %s : %s' % (self.url, scan_param))
+                        self.scan_result["param"].append(scan_param)
+                        self.scan_result["ret"] = 1
 
             elif param_position == "post":
                 flag = self.doCurl(self.param, scan_param, self.header)
-                if self.pq in flag.content:
-                    logging.info('code inject in %s : %s' % (self.url, scan_param))
-                    self.scan_result["param"].append(scan_param)
-                    self.scan_result["ret"] = 1
+                if flag:
+                    if self.pq in flag.content:
+                        logging.info('code inject in %s : %s' % (self.url, scan_param))
+                        self.scan_result["param"].append(scan_param)
+                        self.scan_result["ret"] = 1
             q.task_done()
 
 if __name__ == "__main__":
