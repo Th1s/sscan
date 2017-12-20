@@ -62,6 +62,7 @@ def scan(r, queue, scan_modules):
                 except Exception as e:
                     logging.exception(e)
 
+
 # 生成原始http数据包
 def genCompleteHttpMessage(method, url, header, param, data):
     html = ""

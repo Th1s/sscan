@@ -16,7 +16,6 @@ class SqlInjectScanner(Scanner):
 
         # delay     int     请求delay
         # sleep_time int     延时时长
-        self.delay = sqli_config['delay']
         self.sleep_time = sqli_config['sleep_time']
 
         # payload   dict    注入payload
@@ -32,7 +31,7 @@ class SqlInjectScanner(Scanner):
 
     def deepScan(self, scan_param, param_position):
         # 判断网络延迟
-        check_param = eval((str(scan_param)).replace("sleep(5)", "aaa()"))
+        check_param = eval((str(scan_param)).replace("sleep(", "aaa("))
         score = 0
         for i in xrange(10):
             if(self.doCurl(self.param, self.data, self.header)):
@@ -58,7 +57,7 @@ class SqlInjectScanner(Scanner):
             scan_param = q.get()
             # do scan here
             if param_position == "get":
-                flag = not self.doCurl(scan_param, self.data, self.header)
+                flag = not self.doCurl(scan_param, self.data, self.header, self.cookie)
                 if flag:
                     # 检测是否误报
                     if self.deepScan(scan_param, param_position):
@@ -70,7 +69,7 @@ class SqlInjectScanner(Scanner):
                         # logging.warning("False positives in %s" % self.url)
 
             elif param_position == "post":
-                flag = not self.doCurl(self.param, scan_param, self.header)
+                flag = not self.doCurl(self.param, scan_param, self.header, self.cookie)
                 if flag:
                     # 检测是否误报
                     if self.deepScan(scan_param, param_position):

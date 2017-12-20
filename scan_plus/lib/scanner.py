@@ -43,9 +43,12 @@ class Scanner:
         # 扫描线程数
         self.thread_num = 5
 
+        # 扫描结果
         self.scan_result = {}
         self.scan_result["ret"] = 0
         self.scan_result["param"] = []
+
+        self.scan_position = ["get", "post"]
 
     # 生成payload
     # 默认返回self.payload
@@ -113,21 +116,39 @@ class Scanner:
     # result = {"ret":1, "param":["id"]}
     def doWork(self):
         param, data, header, cookie = self.addPayload(self.param, self.data, self.header, self.cookie)
+
         pqueue = Queue.Queue()
         dqueue = Queue.Queue()
+        hqueue = Queue.Queue()
+        cqueue = Queue.Queue()
 
-        if param:
+        if "get" in self.scan_position:
             for key, values in param.iteritems():
                 for value in values:
                     scan_param = self.param.copy()
                     scan_param[key] = value
                     pqueue.put(scan_param)
-        if data:
+
+        if "post" in self.scan_position:
             for key, values in data.iteritems():
                 for value in values:
                     scan_param = self.data.copy()
                     scan_param[key] = value
                     dqueue.put(scan_param)
+
+        if "header" in self.scan_position:
+            for key, values in header.iteritems():
+                for value in values:
+                    scan_param = self.data.copy()
+                    scan_param[key] = value
+                    hqueue.put(scan_param)
+
+        if "cookie" in self.scan_position:
+            for key, values in cookie.iteritems():
+                for value in values:
+                    scan_param = self.data.copy()
+                    scan_param[key] = value
+                    cqueue.put(scan_param)
 
         for i in range(self.thread_num):
             if pqueue:
@@ -136,9 +157,17 @@ class Scanner:
             if dqueue:
                 param_position = "post"
                 threading.Thread(target=self.doScan, args=(dqueue, param_position)).start()
+            if hqueue:
+                param_position = "header"
+                threading.Thread(target=self.doScan, args=(hqueue, param_position)).start()
+            if cqueue:
+                param_position = "cookie"
+                threading.Thread(target=self.doScan, args=(cqueue, param_position)).start()
 
         pqueue.join()
         dqueue.join()
+        hqueue.join()
+        cqueue.join()
 
     # 具体的检测逻辑
     # q 的类型为队列

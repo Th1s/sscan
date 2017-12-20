@@ -14,11 +14,6 @@ class CodeInjectScanner(Scanner):
 
         Scanner.__init__(self, *args, **kwargs)
 
-        # delay     int     请求delay
-        # sleep_time int     延时时长
-        self.delay = code_inject_config['delay']
-        self.sleep_time = code_inject_config['sleep_time']
-
         # payload   dict    注入payload
         self.payload = code_inject_config['payload']
 
