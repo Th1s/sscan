@@ -24,51 +24,30 @@ class CommandInjectScanner(Scanner):
         self.ceye_api = command_inject_config["ceye_api"]
 
     # override
-    def doScan(self, q, param_position):
-        while not q.empty():
-            scan_param = q.get()
-            random_key = ''.join(str(random.random()).split('.'))
-            for payload in self.payload:
-                try:
-                    string_scan_param = str(scan_param).replace(payload, payload % (random_key, self.ceye_host))
-                    scan_param = eval(string_scan_param)
-                except Exception as e:
-                    logging.exception(e)
+    def doCheck(self, scan_param, param_position):
+        random_key = ''.join(str(random.random()).split('.'))
+        for payload in self.payload:
+            try:
+                string_scan_param = str(scan_param).replace(payload, payload % (random_key, self.ceye_host))
+                scan_param = eval(string_scan_param)
+            except Exception as e:
+                logging.exception(e)
 
-            # do scan here
-            if param_position == "get":
-                flag = self.doCurl(scan_param, self.data, self.header)
+            flag = self.doCurl(scan_param, param_position)
 
-                # command inject
-                try:
-                    r = requests.get("http://api.ceye.io/v1/records?token=%s&type=dns&filter=" % self.ceye_api)
-                    search_result = r.content
-                    if search_result.find(random_key) > 0:
-                        logging.info('command inject in %s : %s' % (self.url, scan_param))
-                        self.scan_result["param"].append(scan_param)
-                        self.scan_result["ret"] = 1
-                except Exception as e:
-                    logging.exception(e)
+            try:
+                r = requests.get("http://api.ceye.io/v1/records?token=%s&type=dns&filter=" % self.ceye_api)
+                search_result = r.content
+                if search_result.find(random_key) > 0:
+                    logging.info('command inject in %s : %s' % (self.url, scan_param))
+                    self.doLogResult(scan_param)
+            except Exception as e:
+                logging.exception(e)
 
-            elif param_position == "post":
-                flag = self.doCurl(self.param, scan_param, self.header)
-
-                # command inject
-                try:
-                    r = requests.get("http://api.ceye.io/v1/records?token=%s&type=dns&filter=" % self.ceye_api)
-                    search_result = r.content
-                    if search_result.find(random_key) > 0:
-                        logging.info('command inject in %s : %s' % (self.url, scan_param))
-                        self.scan_result["param"].append(scan_param)
-                        self.scan_result["ret"] = 1
-                except Exception as e:
-                    logging.exception(e)
-
-            q.task_done()
 
 if __name__ == "__main__":
     method = "get"
-    url = "http://xxx"
+    url = "http://www.th1s.cn/test/sscan/command.php"
     header = {}
     param = {"id": 1, "test": 3}
     data = {}

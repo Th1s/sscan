@@ -96,7 +96,7 @@ class Scanner:
         return final_params, final_data, final_header, final_cookie
 
     # curl 方法
-    def doCurl(self, param={}, data={}, header={}, cookie={}):
+    def curl(self, param={}, data={}, header={}, cookie={}):
         if self.method.lower() == "get":
             try:
                 r = requests.get(self.url, params=param, headers=header, cookies=cookie, timeout=self.sleep_time)
@@ -111,6 +111,21 @@ class Scanner:
             except Exception as e:
                 return False
 
+
+    # 根据payload位置进行curl
+    def doCurl(self, scan_param={}, param_position=""):
+        if scan_param:
+            if param_position == "get":
+                return self.curl(scan_param, self.data, self.header, self.cookie)
+            elif param_position == "post":
+                return self.curl(self.param, scan_param, self.header, self.cookie)
+            elif param_position == "header":
+                return self.curl(self.param, self.data, scan_param, self.cookie)
+            elif param_position == "cookie":
+                return self.curl(self.param, self.data, self.header, scan_param)
+        else:
+            return self.curl(self.param, self.data, self.header, self.cookie)
+
     # 多线程调用doScan
     # 默认只检测 get和post参数
     # result = {"ret":1, "param":["id"]}
@@ -123,32 +138,36 @@ class Scanner:
         cqueue = Queue.Queue()
 
         if "get" in self.scan_position:
-            for key, values in param.iteritems():
-                for value in values:
-                    scan_param = self.param.copy()
-                    scan_param[key] = value
-                    pqueue.put(scan_param)
+            if param:
+                for key, values in param.iteritems():
+                    for value in values:
+                        scan_param = self.param.copy()
+                        scan_param[key] = value
+                        pqueue.put(scan_param)
 
         if "post" in self.scan_position:
-            for key, values in data.iteritems():
-                for value in values:
-                    scan_param = self.data.copy()
-                    scan_param[key] = value
-                    dqueue.put(scan_param)
+            if data:
+                for key, values in data.iteritems():
+                    for value in values:
+                        scan_param = self.data.copy()
+                        scan_param[key] = value
+                        dqueue.put(scan_param)
 
         if "header" in self.scan_position:
-            for key, values in header.iteritems():
-                for value in values:
-                    scan_param = self.data.copy()
-                    scan_param[key] = value
-                    hqueue.put(scan_param)
+            if header:
+                for key, values in header.iteritems():
+                    for value in values:
+                        scan_param = self.data.copy()
+                        scan_param[key] = value
+                        hqueue.put(scan_param)
 
         if "cookie" in self.scan_position:
-            for key, values in cookie.iteritems():
-                for value in values:
-                    scan_param = self.data.copy()
-                    scan_param[key] = value
-                    cqueue.put(scan_param)
+            if cookie:
+                for key, values in cookie.iteritems():
+                    for value in values:
+                        scan_param = self.data.copy()
+                        scan_param[key] = value
+                        cqueue.put(scan_param)
 
         for i in range(self.thread_num):
             if pqueue:
@@ -169,10 +188,19 @@ class Scanner:
         hqueue.join()
         cqueue.join()
 
-    # 具体的检测逻辑
-    # q 的类型为队列
     def doScan(self, q, param_position):
+        while not q.empty():
+            scan_param = q.get()
+            self.doCheck(scan_param, param_position)
+            q.task_done()
+
+    # 具体的检测逻辑
+    def doCheck(self, scan_param, param_position):
         pass
+
+    def doLogResult(self, scan_param):
+        self.scan_result["param"].append(scan_param)
+        self.scan_result["ret"] = 1
 
 if __name__ == "__main__":
     print "Scanner is an ancestor class"

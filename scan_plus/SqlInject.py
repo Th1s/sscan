@@ -34,56 +34,29 @@ class SqlInjectScanner(Scanner):
         check_param = eval((str(scan_param)).replace("sleep(", "aaa("))
         score = 0
         for i in xrange(10):
-            if(self.doCurl(self.param, self.data, self.header)):
+            if(self.doCurl()):
                 score += 1
         #网络正常
         if score >= 9:
-            if param_position == "get":
-                if self.doCurl(check_param, self.data, self.header):
-                    flag = not self.doCurl(scan_param, self.data, self.header)
-                    return flag
-            elif param_position == "post":
-                if self.doCurl(self.param, check_param, self.header):
-                    flag = not self.doCurl(self.param, scan_param, self.header)
-                    return flag
-            return False
+            if self.doCurl(check_param, param_position):
+                flag = not self.doCurl(scan_param, param_position)
+                return flag
         else:
             logging.warning("network delay in %s" % self.url)
             return False
 
     # override
-    def doScan(self, q, param_position):
-        while not q.empty():
-            scan_param = q.get()
-            # do scan here
-            if param_position == "get":
-                flag = not self.doCurl(scan_param, self.data, self.header, self.cookie)
-                if flag:
-                    # 检测是否误报
-                    if self.deepScan(scan_param, param_position):
-                        logging.info('sqli in %s, method : "%s", payload : %s' % (self.url, self.method, scan_param))
-                        self.scan_result["param"].append(scan_param)
-                        self.scan_result["ret"] = 1
-                    else:
-                        pass
-                        # logging.warning("False positives in %s" % self.url)
-
-            elif param_position == "post":
-                flag = not self.doCurl(self.param, scan_param, self.header, self.cookie)
-                if flag:
-                    # 检测是否误报
-                    if self.deepScan(scan_param, param_position):
-                        logging.info('sqli in %s, method : "%s", payload : %s' % (self.url, self.method, scan_param))
-                        self.scan_result["param"].append(scan_param)
-                        self.scan_result["ret"] = 1
-                    else:
-                        pass
-                        # logging.warning("False positives in %s" % self.url)
-            q.task_done()
+    def doCheck(self, scan_param, param_position):
+        flag = not self.doCurl(scan_param, param_position)
+        if flag:
+            # 检测是否误报
+            if self.deepScan(scan_param, param_position):
+                logging.info('sqli in %s, method : "%s", payload : %s' % (self.url, self.method, scan_param))
+                self.doLogResult(scan_param)
 
 if __name__ == "__main__":
     method = "post"
-    url = "http://xxx"
+    url = "http://www.th1s.cn/test/sscan/sqli.php"
     header = {}
     param = {"aaa": 1, "bbb": 3}
     data = {"id": "2", "aa": 4}

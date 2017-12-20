@@ -30,31 +30,16 @@ class CodeInjectScanner(Scanner):
         return payload
 
     # override
-    def doScan(self, q, param_position):
-        while not q.empty():
-            scan_param = q.get()
-
-            # do scan here
-            if param_position == "get":
-                flag = self.doCurl(scan_param, self.data, self.header)
-                if flag:
-                    if self.pq in flag.content:
-                        logging.info('code inject in %s : %s' % (self.url, scan_param))
-                        self.scan_result["param"].append(scan_param)
-                        self.scan_result["ret"] = 1
-
-            elif param_position == "post":
-                flag = self.doCurl(self.param, scan_param, self.header)
-                if flag:
-                    if self.pq in flag.content:
-                        logging.info('code inject in %s : %s' % (self.url, scan_param))
-                        self.scan_result["param"].append(scan_param)
-                        self.scan_result["ret"] = 1
-            q.task_done()
+    def doCheck(self, scan_param, param_position):
+        flag = self.doCurl(scan_param, param_position)
+        if flag:
+            if self.pq in flag.content:
+                logging.info('code inject in %s : %s' % (self.url, scan_param))
+                self.doLogResult(scan_param)
 
 if __name__ == "__main__":
     method = "post"
-    url = "http://xxx"
+    url = "http://www.th1s.cn/test/sscan/code.php"
     header = {}
     param = {"id": 1, "test": 3}
     data = {}
