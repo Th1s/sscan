@@ -34,7 +34,10 @@ class CommandInjectScanner(Scanner):
                 random_key = ''.join(str(random.random()).split('.'))
                 for payload in self.payload:
                     string_scan_param = json.dumps(scan_param)
-                    string_scan_param = string_scan_param.decode(chardet.detect(string_scan_param)["encoding"]).encode("utf-8").replace(payload, payload % (random_key, self.ceye_host))
+                    try:
+                        string_scan_param = string_scan_param.decode(chardet.detect(string_scan_param)["encoding"]).encode("utf-8").replace(payload, payload % (random_key, self.ceye_host))
+                    except Exception:
+                        logging.warning("unknown scan_param encoding")
                 scan_param = eval(string_scan_param)
                 flag = self.doCurl(scan_param, self.data, self.header)
 

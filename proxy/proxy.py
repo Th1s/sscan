@@ -403,7 +403,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
                 try:
                     body = body.decode(chardet.detect(body)["encoding"]).encode("utf-8")
                 except Exception as e:
-                    logging.warning("unknown encoding, body decode failed")
+                    logging.warning("unknown body encoding")
 
         json_result = {"method": method, "url": url, "headers": headers, "body": body}
 
