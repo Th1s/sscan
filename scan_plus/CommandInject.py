@@ -47,7 +47,7 @@ class CommandInjectScanner(Scanner):
 
 if __name__ == "__main__":
     method = "get"
-    url = "http://www.th1s.cn/test/sscan/command.php"
+    url = "http://xxx"
     header = {}
     param = {"id": 1, "test": 3}
     data = {}
