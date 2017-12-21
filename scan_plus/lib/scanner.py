@@ -68,7 +68,7 @@ class Scanner:
                 for k, v in param.iteritems():
                     final_params[k] = []
                     for p in payload:
-                        v1 = str(v) + p
+                        v1 = p
                         final_params[k].append(v1)
 
         if "post" in self.scan_position:
@@ -76,7 +76,7 @@ class Scanner:
                 for k, v in data.iteritems():
                     final_data[k] = []
                     for p in payload:
-                        v1 = str(v) + p
+                        v1 = p
                         final_data[k].append(v1)
 
         if "header" in self.scan_position:
@@ -84,7 +84,7 @@ class Scanner:
                 for k, v in header.iteritems():
                     final_header[k] = []
                     for p in payload:
-                        v1 = str(v) + p
+                        v1 = p
                         final_header[k].append(v1)
 
         if "cookie" in self.scan_position:
@@ -92,7 +92,7 @@ class Scanner:
                 for k, v in cookie.iteritems():
                     final_cookie[k] = []
                     for p in payload:
-                        v1 = str(v) + p
+                        v1 = p
                         final_cookie[k].append(v1)
         return final_params, final_data, final_header, final_cookie
 

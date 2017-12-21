@@ -31,18 +31,20 @@ class SqlInjectScanner(Scanner):
 
     def deepScan(self, scan_param, param_position):
         # 判断网络延迟
-        check_param = eval((str(scan_param)).replace("sleep(", "aaa("))
+        check_param = eval((str(scan_param)).replace("sleep(", "aaaaa"))
         score = 0
         for i in xrange(10):
             if(self.doCurl()):
                 score += 1
+            if i-score > 1:
+                logging.warning("network delay in %s" % self.url)
+                return False
         #网络正常
-        if score >= 9:
-            if self.doCurl(check_param, param_position):
-                flag = not self.doCurl(scan_param, param_position)
-                return flag
+        if self.doCurl(check_param, param_position):
+            flag = not self.doCurl(scan_param, param_position)
+            return flag
         else:
-            logging.warning("network delay in %s" % self.url)
+            logging.warning("wtf")
             return False
 
     # override
@@ -58,10 +60,11 @@ if __name__ == "__main__":
     method = "post"
     url = "http://xxx"
     header = {}
+    cookie = {}
     param = {"aaa": 1, "bbb": 3}
     data = {"id": "2", "aa": 4}
 
-    test = SqlInjectScanner(method, url, header, param, data)
+    test = SqlInjectScanner(method, url, header, cookie, param, data)
     test.doWork()
 
     # result in scan_result
