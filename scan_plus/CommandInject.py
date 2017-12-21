@@ -23,6 +23,8 @@ class CommandInjectScanner(Scanner):
         self.ceye_host = command_inject_config["ceye_host"]
         self.ceye_api = command_inject_config["ceye_api"]
 
+        self.scan_position = command_inject_config["scan_position"]
+
     # override
     def doCheck(self, scan_param, param_position):
         random_key = ''.join(str(random.random()).split('.'))
@@ -47,12 +49,13 @@ class CommandInjectScanner(Scanner):
 
 if __name__ == "__main__":
     method = "get"
-    url = "http://xxx"
-    header = {}
+    url = "http://www.th1s.cn/test/sscan/command.php"
+    header = {"User-Agent": "123"}
+    cookie = {}
     param = {"id": 1, "test": 3}
     data = {}
 
-    test = CommandInjectScanner(method, url, header, param, data)
+    test = CommandInjectScanner(method, url, header, cookie, param, data)
     test.doWork()
 
     # result in scan_result

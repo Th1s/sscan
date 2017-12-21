@@ -13,7 +13,11 @@ def solveUrlParam(rowJson):
     res = {}
     res['method'] = rowJson['method']
     res['header'] = rowJson['headers']
-
+    if res['header'].has_key('cookie'):
+        res['cookie'] = solveCookie(res['header']['cookie'])
+        res['header'].pop('cookie')
+    else:
+        res['cookie'] = {}
     #无论如何都要处理下url
     query = urlparse.urlparse(rowJson['url']).query
     res['param'] = dict([(k, v[0]) for k, v in urlparse.parse_qs(query.encode("UTF-8")).items()])
@@ -24,6 +28,17 @@ def solveUrlParam(rowJson):
         if rowJson['body']:
             res['data'] = dict([(k, v[0]) for k, v in urlparse.parse_qs(rowJson['body'].encode("UTF-8")).items()])
     return res
+
+
+def solveCookie(str_cookie):
+    cookie = {}
+    list_cookie = str_cookie.split(";")
+    for l in list_cookie:
+        ll = l.split("=")
+        key = ll[0]
+        value = ll[1]
+        cookie[key] = value
+    return cookie
 
 
 def listenRedis(r, queue, listName):
@@ -49,7 +64,7 @@ def scan(r, queue, scan_modules):
         for module_name in scan_modules:
             scan_module = importlib.import_module("scan_plus." + module_name)
             scan_module_class = getattr(scan_module,  module_name + "Scanner")
-            scanner = scan_module_class(row['method'], row['url'], row['header'], row['param'], row['data'])
+            scanner = scan_module_class(row['method'], row['url'], row['header'], row['cookie'], row['param'], row['data'])
             scanner.doWork()
             if scanner.scan_result['ret'] == 1:
                 try:

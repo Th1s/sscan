@@ -22,15 +22,13 @@ class Scanner:
         # data    dict    post参数
         # cookie  string  cookie
 
-        method, url, header, param, data = args
+        method, url, header, cookie, param, data = args
         self.url = url
         self.method = method
         self.header = header
+        self.cookie = cookie
         self.param = param
         self.data = data
-
-        # string type cookie
-        self.cookie = {}
 
         # delay     int     请求delay
         # sleep_time int    延时时长
@@ -65,34 +63,37 @@ class Scanner:
 
         payload = self.genPayload()
 
-        if param:
-            for k, v in param.iteritems():
-                final_params[k] = []
-                for p in payload:
-                    v1 = str(v) + p
-                    final_params[k].append(v1)
+        if "get" in self.scan_position:
+            if param:
+                for k, v in param.iteritems():
+                    final_params[k] = []
+                    for p in payload:
+                        v1 = str(v) + p
+                        final_params[k].append(v1)
 
-        if data:
-            for k, v in data.iteritems():
-                final_data[k] = []
-                for p in payload:
-                    v1 = str(v) + p
-                    final_data[k].append(v1)
+        if "post" in self.scan_position:
+            if data:
+                for k, v in data.iteritems():
+                    final_data[k] = []
+                    for p in payload:
+                        v1 = str(v) + p
+                        final_data[k].append(v1)
 
-        if header:
-            for k, v in header.iteritems():
-                final_header[k] = []
-                for p in payload:
-                    v1 = str(v) + p
-                    final_header[k].append(v1)
+        if "header" in self.scan_position:
+            if header:
+                for k, v in header.iteritems():
+                    final_header[k] = []
+                    for p in payload:
+                        v1 = str(v) + p
+                        final_header[k].append(v1)
 
-        if cookie:
-            for k, v in cookie.iteritems():
-                final_cookie[k] = []
-                for p in payload:
-                    v1 = str(v) + p
-                    final_cookie[k].append(v1)
-
+        if "cookie" in self.scan_position:
+            if cookie:
+                for k, v in cookie.iteritems():
+                    final_cookie[k] = []
+                    for p in payload:
+                        v1 = str(v) + p
+                        final_cookie[k].append(v1)
         return final_params, final_data, final_header, final_cookie
 
     # curl 方法

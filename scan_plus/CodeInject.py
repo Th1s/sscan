@@ -15,11 +15,13 @@ class CodeInjectScanner(Scanner):
         Scanner.__init__(self, *args, **kwargs)
 
         # payload   dict    注入payload
-        self.payload = code_inject_config['payload']
+        self.payload = code_inject_config["payload"]
 
         self.p = "12345"
         self.q = "6789"
         self.pq = "83810205"
+
+        self.scan_position = code_inject_config["scan_position"]
 
     # override
     def genPayload(self):
@@ -38,14 +40,15 @@ class CodeInjectScanner(Scanner):
                 self.doLogResult(scan_param)
 
 if __name__ == "__main__":
-    method = "post"
+    method = "get"
     url = "http://xxx"
     header = {}
-    param = {"id": 1, "test": 3}
+    param = {"test": 3}
     data = {}
+    cookie = {"id": "1"}
     #data = {"b": "2", "aa": 4}
 
-    test = CodeInjectScanner(method, url, header, param, data)
+    test = CodeInjectScanner(method, url, header, cookie, param, data)
     test.doWork()
 
     # result in scan_result
