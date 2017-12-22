@@ -36,7 +36,7 @@ def solveCookie(str_cookie):
     for l in list_cookie:
         ll = l.split("=")
         key = ll[0]
-        value = ll[1]
+        value = ll[1] if ll[1] else ""
         cookie[key] = value
     return cookie
 

