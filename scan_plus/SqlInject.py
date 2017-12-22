@@ -44,7 +44,7 @@ class SqlInjectScanner(Scanner):
             flag = not self.doCurl(scan_param, param_position)
             return flag
         else:
-            logging.warning("sqli waf in %s" % self.url)
+            logging.warning("network delay in %s" % self.url)
             return False
 
     # override

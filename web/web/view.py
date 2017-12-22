@@ -36,15 +36,15 @@ def getResult(request):
     rel_list = []
     for result in result_list:
         result = json.loads(result)
-        string = ""
         lpayload = result["payload"]
         for payload in lpayload:
             string = "%s=%s" % (payload[1], payload[2])
             result["payload"] = string
             result["position"] = payload[0]
-            result['message'] = genCompleteHttpMessage(result['method'], result['url'], result['header'], result['cookie'], result['param'], result['data'], payload)
-            sresult = json.dumps(result)
-            rel_list.append(sresult)
+            print result
+            result['message'] = genCompleteHttpMessage(result['method'], result['url'], result['header'].copy(), result['cookie'].copy(), result['param'].copy(), result['data'].copy(), payload)
+            dumps_result = json.dumps(result)
+            rel_list.append(dumps_result)
     rel = ",".join(rel_list)
     rel = "[" + rel + "]"
 
