@@ -37,7 +37,8 @@ class CodeInjectScanner(Scanner):
         if flag:
             if self.pq in flag.content:
                 logging.info('code inject in %s : %s' % (self.url, scan_param))
-                self.doLogResult(scan_param)
+                return True
+        return False
 
 if __name__ == "__main__":
     method = "get"

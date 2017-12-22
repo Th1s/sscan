@@ -42,10 +42,12 @@ class CommandInjectScanner(Scanner):
                 search_result = r.content
                 if search_result.find(random_key) > 0:
                     logging.info('command inject in %s : %s' % (self.url, scan_param))
-                    self.doLogResult(scan_param)
+                    return True
+                else:
+                    return False
             except Exception as e:
                 logging.exception(e)
-
+                return False
 
 if __name__ == "__main__":
     method = "get"

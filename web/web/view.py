@@ -31,17 +31,18 @@ def getResult(request):
     http_result_name = redis_config["http_result_name"]
     result_list = r.lrange(http_result_name, 0, -1)
 
+    result_list.reverse()
     # 处理格式
     rel_list = []
     for result in result_list:
         result = json.loads(result)
         string = ""
         for r in result["payload"]:
-            for k, v in r.items():
-                string += k + "=" + v + "&"
-        result["payload"] = string
-        result = json.dumps(result)
-        rel_list.append(result)
+            string += "%s=%s" % (r[1], r[2])
+            result["payload"] = string
+            result["position"] = r[0]
+            result = json.dumps(result)
+            rel_list.append(result)
     rel = ",".join(rel_list)
     rel = "[" + rel + "]"
 

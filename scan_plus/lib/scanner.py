@@ -44,7 +44,7 @@ class Scanner:
         # 扫描结果
         self.scan_result = {}
         self.scan_result["ret"] = 0
-        self.scan_result["param"] = []
+        self.scan_result["payload"] = []
 
         self.scan_position = ["get", "post"]
 
@@ -96,40 +96,23 @@ class Scanner:
                         final_cookie[k].append(v1)
         return final_params, final_data, final_header, final_cookie
 
-    # curl 方法
-    def curl(self, param={}, data={}, header={}, cookie={}):
-        if self.method.lower() == "get":
-            try:
-                r = requests.get(self.url, params=param, headers=header, cookies=cookie, timeout=self.sleep_time)
-                return r
-            except Exception as e:
-                return False
+    def doScan(self, q, param_position):
+        while not q.empty():
+            scan_param, key, value = q.get()
+            flag = self.doCheck(scan_param, param_position)
+            if flag:
+                self.doLogResult(param_position, key, value)
+            q.task_done()
 
-        elif self.method.lower() == "post":
-            try:
-                r = requests.post(self.url, params=param, data=data, headers=header, cookies=cookie, timeout=self.sleep_time)
-                return r
-            except Exception as e:
-                return False
+    # 具体的检测逻辑
+    def doCheck(self, scan_param, param_position):
+        pass
 
-
-    # 根据payload位置进行curl
-    def doCurl(self, scan_param={}, param_position=""):
-        if scan_param:
-            if param_position == "get":
-                return self.curl(scan_param, self.data, self.header, self.cookie)
-            elif param_position == "post":
-                return self.curl(self.param, scan_param, self.header, self.cookie)
-            elif param_position == "header":
-                return self.curl(self.param, self.data, scan_param, self.cookie)
-            elif param_position == "cookie":
-                return self.curl(self.param, self.data, self.header, scan_param)
-        else:
-            return self.curl(self.param, self.data, self.header, self.cookie)
+    def doLogResult(self, param_position, key, value):
+        self.scan_result["payload"].append([param_position, key, value])
+        self.scan_result["ret"] = 1
 
     # 多线程调用doScan
-    # 默认只检测 get和post参数
-    # result = {"ret":1, "param":["id"]}
     def doWork(self):
         param, data, header, cookie = self.addPayload(self.param, self.data, self.header, self.cookie)
 
@@ -144,7 +127,7 @@ class Scanner:
                     for value in values:
                         scan_param = self.param.copy()
                         scan_param[key] = value
-                        pqueue.put(scan_param)
+                        pqueue.put([scan_param, key, value])
 
         if "post" in self.scan_position:
             if data:
@@ -152,7 +135,7 @@ class Scanner:
                     for value in values:
                         scan_param = self.data.copy()
                         scan_param[key] = value
-                        dqueue.put(scan_param)
+                        dqueue.put([scan_param, key, value])
 
         if "header" in self.scan_position:
             if header:
@@ -160,7 +143,7 @@ class Scanner:
                     for value in values:
                         scan_param = self.data.copy()
                         scan_param[key] = value
-                        hqueue.put(scan_param)
+                        hqueue.put([scan_param, key, value])
 
         if "cookie" in self.scan_position:
             if cookie:
@@ -168,7 +151,7 @@ class Scanner:
                     for value in values:
                         scan_param = self.data.copy()
                         scan_param[key] = value
-                        cqueue.put(scan_param)
+                        cqueue.put([scan_param, key, value])
 
         for i in range(self.thread_num):
             if pqueue:
@@ -189,19 +172,35 @@ class Scanner:
         hqueue.join()
         cqueue.join()
 
-    def doScan(self, q, param_position):
-        while not q.empty():
-            scan_param = q.get()
-            self.doCheck(scan_param, param_position)
-            q.task_done()
+    # curl 方法
+    def curl(self, param={}, data={}, header={}, cookie={}):
+        if self.method.lower() == "get":
+            try:
+                r = requests.get(self.url, params=param, headers=header, cookies=cookie, timeout=self.sleep_time)
+                return r
+            except Exception as e:
+                return False
 
-    # 具体的检测逻辑
-    def doCheck(self, scan_param, param_position):
-        pass
+        elif self.method.lower() == "post":
+            try:
+                r = requests.post(self.url, params=param, data=data, headers=header, cookies=cookie, timeout=self.sleep_time)
+                return r
+            except Exception as e:
+                return False
 
-    def doLogResult(self, scan_param):
-        self.scan_result["param"].append(scan_param)
-        self.scan_result["ret"] = 1
+    # 根据payload位置进行curl
+    def doCurl(self, scan_param={}, param_position=""):
+        if scan_param:
+            if param_position == "get":
+                return self.curl(scan_param, self.data, self.header, self.cookie)
+            elif param_position == "post":
+                return self.curl(self.param, scan_param, self.header, self.cookie)
+            elif param_position == "header":
+                return self.curl(self.param, self.data, scan_param, self.cookie)
+            elif param_position == "cookie":
+                return self.curl(self.param, self.data, self.header, scan_param)
+        else:
+            return self.curl(self.param, self.data, self.header, self.cookie)
 
 if __name__ == "__main__":
     print "Scanner is an ancestor class"

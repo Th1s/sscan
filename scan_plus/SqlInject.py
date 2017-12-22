@@ -54,11 +54,12 @@ class SqlInjectScanner(Scanner):
             # 检测是否误报
             if self.deepScan(scan_param, param_position):
                 logging.info('sqli in %s, method : "%s", payload : %s' % (self.url, self.method, scan_param))
-                self.doLogResult(scan_param)
+                return True
+        return False
 
 if __name__ == "__main__":
     method = "post"
-    url = "http://xxx"
+    url = "http://www.th1s.cn/test/sscan/sqli.php"
     header = {}
     cookie = {}
     param = {"aaa": 1, "bbb": 3}

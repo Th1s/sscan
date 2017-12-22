@@ -70,7 +70,7 @@ def scan(r, queue, scan_modules):
                 try:
                     row['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
                     row['type'] = module_name
-                    row['payload'] = scanner.scan_result['param']
+                    row['payload'] = scanner.scan_result['payload']
                     row['message'] = genCompleteHttpMessage(row['method'], row['url'], row['header'], row['param'], row['data'])
                     resultJson = json.dumps(row)
                     r.rpush(redis_config['http_result_name'], resultJson)
