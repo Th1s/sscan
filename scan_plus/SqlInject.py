@@ -59,7 +59,7 @@ class SqlInjectScanner(Scanner):
 
 if __name__ == "__main__":
     method = "post"
-    url = "http://www.th1s.cn/test/sscan/sqli.php"
+    url = "http://xxx"
     header = {}
     cookie = {}
     param = {"aaa": 1, "bbb": 3}

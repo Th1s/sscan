@@ -37,13 +37,58 @@ def getResult(request):
     for result in result_list:
         result = json.loads(result)
         string = ""
-        for r in result["payload"]:
-            string += "%s=%s" % (r[1], r[2])
+        lpayload = result["payload"]
+        for payload in lpayload:
+            string = "%s=%s" % (payload[1], payload[2])
             result["payload"] = string
-            result["position"] = r[0]
-            result = json.dumps(result)
-            rel_list.append(result)
+            result["position"] = payload[0]
+            result['message'] = genCompleteHttpMessage(result['method'], result['url'], result['header'], result['cookie'], result['param'], result['data'], payload)
+            sresult = json.dumps(result)
+            rel_list.append(sresult)
     rel = ",".join(rel_list)
     rel = "[" + rel + "]"
 
     return HttpResponse(rel)
+
+
+def genCompleteHttpMessage(method, url, header, cookie, param, data, payload):
+
+    # 替换payload
+    if payload[0] == "get":
+        param[payload[1]] = payload[2]
+    elif payload[0] == "post":
+        data[payload[1]] = payload[2]
+    elif payload[0] == "header":
+        header[payload[1]] = payload[2]
+    elif payload[0] == "cookie":
+        cookie[payload[1]] = payload[2]
+
+    # 构建request报文
+    html = ""
+
+    # 头部第一行
+    html += method.upper() + " " + url + ("?" if param else "")
+    for k, v in param.items():
+        html += k + "=" + v + "&"
+    # 去掉结尾的&
+    if param:
+        html = html[:-1]
+    html += " HTTP/1.1" + "\n"
+
+    # http header
+    for k, v in header.items():
+        html += k + ": " + v + "\n"
+    if cookie:
+        html += "cookie: "
+        for k, v in cookie.items():
+            html += k + "=" + v + "; "
+        html += "\n"
+    html += "\n"
+
+    # http body
+    for k, v in data.items():
+        html += k + "=" + v + "&"
+    if data:
+        html = html[:-1]
+
+    return html
