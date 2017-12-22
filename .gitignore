@@ -1,5 +1,5 @@
 *.pyc
-proxy/certs/
+proxy/certs/*.crt
 .idea/
 */.idea/
 */.DS_Store
