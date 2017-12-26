@@ -49,12 +49,14 @@ class SqlInjectScanner(Scanner):
 
     # override
     def doCheck(self, scan_param, param_position):
+        """
         flag = not self.doCurl(scan_param, param_position)
         if flag:
             # 检测是否误报
             if self.deepScan(scan_param, param_position):
                 logging.info('sqli in %s, method : "%s", payload : %s' % (self.url, self.method, scan_param))
                 return True
+        """
         return False
 
 if __name__ == "__main__":
@@ -63,7 +65,7 @@ if __name__ == "__main__":
     header = {"Cookie": "login=test%2Ftest;"}
     cookie = {}
     param = {}
-    data = {'uemail': 'email@email.com', 'update': 'update'}
+    data = {'uemail': 'email@email.com', 'uphone': '2323345', 'update': 'update'}
 
     test = SqlInjectScanner(method, url, header, cookie, param, data)
     test.doWork()

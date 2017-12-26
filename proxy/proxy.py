@@ -25,6 +25,12 @@ from web.web.doRedis.config import redis_config
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [line:%(lineno)d] - %(levelname)s: %(message)s')
 
+white_list = []
+with open("whitelist.txt", "r") as f:
+    for line in f.readlines():
+        white_list.append(line)
+
+
 def with_color(c, s):
     return "\x1b[%dm%s\x1b[0m" % (c, s)
 
@@ -393,6 +399,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         self.print_info(req, req_body, res, res_body)
 
     def save_redis(self, method, url, headers, body):
+        if not self.check_whitelist(url, white_list):
+            return
         r = redis.Redis(connection_pool=pool)
 
         # 处理body编码
@@ -413,6 +421,15 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             r.lpush(list_name, string_result)
         except Exception as e:
             pass
+
+    def check_whitelist(self, url, white_list):
+        if not white_list:
+            return True
+        host = urlparse.urlparse(url).netloc
+        if host in white_list:
+            return True
+        else:
+            return False
 
 
 def proxyStart(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):

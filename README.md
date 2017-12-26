@@ -16,6 +16,8 @@
     - web模块。Django + bootstrap-table 的简单扫描结果展示。
  4. sscanHandler.py
     - 启动脚本。
+ 5. whitelist.txt
+    - host白名单。若为空则表示无白名单。
 
 使用说明
 ----
