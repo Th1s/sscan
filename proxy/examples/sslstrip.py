@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from proxy2 import *
+from proxy.proxy import *
 from collections import deque
 
 class SSLStripRequestHandler(ProxyRequestHandler):
@@ -23,4 +23,4 @@ class SSLStripRequestHandler(ProxyRequestHandler):
 
 
 if __name__ == '__main__':
-    test(HandlerClass=SSLStripRequestHandler)
+    proxyStart(HandlerClass=SSLStripRequestHandler)

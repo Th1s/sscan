@@ -426,10 +426,10 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         if not white_list:
             return True
         host = urlparse.urlparse(url).netloc
-        if host in white_list:
-            return True
-        else:
-            return False
+        for wl in white_list:
+            if wl in host:
+                return True
+        return False
 
 
 def proxyStart(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):
