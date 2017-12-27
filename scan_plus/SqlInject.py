@@ -49,23 +49,21 @@ class SqlInjectScanner(Scanner):
 
     # override
     def doCheck(self, scan_param, param_position):
-        """
         flag = not self.doCurl(scan_param, param_position)
         if flag:
             # 检测是否误报
             if self.deepScan(scan_param, param_position):
                 logging.info('sqli in %s, method : "%s", payload : %s' % (self.url, self.method, scan_param))
                 return True
-        """
         return False
 
 if __name__ == "__main__":
-    method = "post"
-    url = "http://testphp.vulnweb.com/userinfo.php"
-    header = {"Cookie": "login=test%2Ftest;"}
+    method = "get"
+    url = "http://www.th1s.cn/test/sscan/sqli.php"
+    header = {}
     cookie = {}
-    param = {}
-    data = {'uemail': 'email@email.com', 'uphone': '2323345', 'update': 'update'}
+    param = {"id": 1}
+    data = {}
 
     test = SqlInjectScanner(method, url, header, cookie, param, data)
     test.doWork()
