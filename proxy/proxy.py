@@ -407,8 +407,8 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         if headers.has_key("content-encoding"):
             encode = headers["content-encoding"]
             if body:
-                body = self.decode_content_body(body, encode)
                 try:
+                    body = self.decode_content_body(body, encode)
                     body = body.decode(chardet.detect(body)["encoding"]).encode("utf-8")
                 except Exception as e:
                     logging.warning("unknown body encoding")
