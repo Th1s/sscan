@@ -427,7 +427,7 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             return True
         host = urlparse.urlparse(url).netloc
         for wl in white_list:
-            if wl in host:
+            if wl.strip() in host:
                 return True
         return False
 

