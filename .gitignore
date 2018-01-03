@@ -4,3 +4,4 @@ proxy/certs/*.crt
 */.idea/
 */.DS_Store
 .DS_Store
+whitelist.txt
