@@ -81,7 +81,7 @@ def genCompleteHttpMessage(method, url, header, cookie, param, data, payload):
     if cookie:
         html += "cookie: "
         for k, v in cookie.items():
-            html += k + "=" + v + "; "
+            html += k + "=" + v + ";"
         html += "\n"
     html += "\n"
 
