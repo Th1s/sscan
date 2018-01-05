@@ -3,7 +3,8 @@
 import Queue
 import importlib
 
-from common.solve import *
+from common.solve import solveUrlParam, solveCookie
+from common.check import check_whitelist
 from proxy.proxy import *
 
 white_list = []
@@ -28,16 +29,6 @@ def listenRedis(r, queue, listName):
         else:
             time.sleep(1)
 
-
-def check_whitelist(url, white_list):
-    if not white_list:
-        return True
-    host = urlparse.urlparse(url).netloc
-    for wl in white_list:
-        if wl.strip() in host:
-            return True
-    return False
-
 def scan(r, queue, scan_modules):
     while True:
         row = queue.get()
@@ -56,10 +47,6 @@ def scan(r, queue, scan_modules):
                     r.rpush(redis_config['http_result_name'], resultJson)
                 except Exception as e:
                     logging.exception(e)
-
-
-# 生成原始http数据包
-
 
 def importPlus():
     plus_dir = "/scan/plus"
