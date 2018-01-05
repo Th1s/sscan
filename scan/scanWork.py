@@ -7,7 +7,7 @@ from common.solve import *
 from proxy.proxy import *
 
 white_list = []
-with open("whitelist.txt", "r") as f:
+with open("white_list.txt", "r") as f:
     for line in f.readlines():
         white_list.append(line)
 
