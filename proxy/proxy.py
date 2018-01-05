@@ -2,6 +2,7 @@
 import gzip
 import httplib
 import json
+import logging
 import os
 import re
 import select
@@ -12,23 +13,18 @@ import threading
 import time
 import urlparse
 import zlib
-import logging
-import chardet
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 from HTMLParser import HTMLParser
 from SocketServer import ThreadingMixIn
 from cStringIO import StringIO
 from subprocess import Popen, PIPE
 
-from web.web.doRedis.connectRedis import *
+import chardet
+
 from web.web.doRedis.config import redis_config
+from web.web.doRedis.connectRedis import *
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - [line:%(lineno)d] - %(levelname)s: %(message)s')
-
-white_list = []
-with open("whitelist.txt", "r") as f:
-    for line in f.readlines():
-        white_list.append(line)
 
 
 def with_color(c, s):
@@ -399,19 +395,15 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
         self.print_info(req, req_body, res, res_body)
 
     def save_redis(self, method, url, headers, body):
-        if not self.check_whitelist(url, white_list):
-            return
+
         r = redis.Redis(connection_pool=pool)
 
         # 处理body编码
-        if headers.has_key("content-encoding"):
-            encode = headers["content-encoding"]
-            if body:
-                try:
-                    body = self.decode_content_body(body, encode)
-                    body = body.decode(chardet.detect(body)["encoding"]).encode("utf-8")
-                except Exception as e:
-                    logging.warning("unknown body encoding")
+        if body:
+            try:
+                body = body.decode(chardet.detect(body)["encoding"]).encode("utf-8")
+            except Exception as e:
+                logging.warning("unknown body encoding")
 
         json_result = {"method": method, "url": url, "headers": headers, "body": body}
 
@@ -421,15 +413,6 @@ class ProxyRequestHandler(BaseHTTPRequestHandler):
             r.lpush(list_name, string_result)
         except Exception as e:
             pass
-
-    def check_whitelist(self, url, white_list):
-        if not white_list:
-            return True
-        host = urlparse.urlparse(url).netloc
-        for wl in white_list:
-            if wl.strip() in host:
-                return True
-        return False
 
 
 def proxyStart(HandlerClass=ProxyRequestHandler, ServerClass=ThreadingHTTPServer, protocol="HTTP/1.1"):

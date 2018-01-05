@@ -2,8 +2,8 @@
 # code inject scanner
 # by Th1s
 
-from lib.scanner import *
-from lib.config import code_inject_config
+from scan.lib.scanner import *
+from scan.lib.config import code_inject_config
 
 
 # code inject 检测模块

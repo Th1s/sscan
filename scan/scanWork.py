@@ -1,44 +1,15 @@
 # -*- coding: utf-8 -*-
 
-import importlib
 import Queue
-import time
-from multiprocessing import Process
+import importlib
 
+from common.solve import *
 from proxy.proxy import *
-from web.web.doRedis.connectRedis import *
 
-
-def solveUrlParam(rowJson):
-    res = {}
-    res['method'] = rowJson['method']
-    res['header'] = rowJson['headers']
-    if res['header'].has_key('cookie'):
-        res['cookie'] = solveCookie(res['header']['cookie'])
-        res['header'].pop('cookie')
-    else:
-        res['cookie'] = {}
-    #无论如何都要处理下url
-    query = urlparse.urlparse(rowJson['url']).query
-    res['param'] = dict([(k, v[0]) for k, v in urlparse.parse_qs(query.encode("UTF-8")).items()])
-    res['data'] = {}
-    res['url'] = rowJson['url'].split("?")[0]
-    if res['method'].lower() == 'post':
-        #目前处理a=1&b=2形式，后续添加更多形式
-        if rowJson['body']:
-            res['data'] = dict([(k, v[0]) for k, v in urlparse.parse_qs(rowJson['body'].encode("UTF-8")).items()])
-    return res
-
-
-def solveCookie(str_cookie):
-    cookie = {}
-    list_cookie = str_cookie.split(";")
-    for l in list_cookie:
-        ll = l.split("=")
-        key = ll[0]
-        value = ll[1] if len(ll) > 1 else ""
-        cookie[key] = value
-    return cookie
+white_list = []
+with open("whitelist.txt", "r") as f:
+    for line in f.readlines():
+        white_list.append(line)
 
 
 def listenRedis(r, queue, listName):
@@ -49,20 +20,30 @@ def listenRedis(r, queue, listName):
             row = r.lpop(listName)
             try:
                 rowJson = json.loads(row)
-                saveJson = solveUrlParam(rowJson)
-                #入队列
-                queue.put(saveJson)
+                if check_whitelist(rowJson['url'], white_list):
+                    saveJson = solveUrlParam(rowJson)
+                    queue.put(saveJson)
             except Exception as e:
                 logging.exception(e)
         else:
             time.sleep(1)
 
 
+def check_whitelist(url, white_list):
+    if not white_list:
+        return True
+    host = urlparse.urlparse(url).netloc
+    for wl in white_list:
+        if wl.strip() in host:
+            return True
+    return False
+
 def scan(r, queue, scan_modules):
     while True:
         row = queue.get()
         for module_name in scan_modules:
-            scan_module = importlib.import_module("scan_plus." + module_name)
+            print module_name
+            scan_module = importlib.import_module("scan.plus." + module_name)
             scan_module_class = getattr(scan_module,  module_name + "Scanner")
             scanner = scan_module_class(row['method'], row['url'], row['header'], row['cookie'], row['param'], row['data'])
             scanner.doWork()
@@ -81,8 +62,9 @@ def scan(r, queue, scan_modules):
 
 
 def importPlus():
+    plus_dir = "/scan/plus"
     now_dir = os.getcwd()
-    filename = os.listdir(now_dir)
+    filename = os.listdir(now_dir + plus_dir)
     scan_moudle = []
     for name in filename:
         if name.endswith(".py") and name != "__init__.py":
@@ -92,7 +74,6 @@ def importPlus():
 
 
 def scanWork():
-    os.chdir("scan_plus")
     r = redis.Redis(connection_pool=pool)
     # 定义参数
     list_name = redis_config['http_data_name']
@@ -118,12 +99,3 @@ def scanWork():
     # 使用while True来实现join，实现ctrl+c退出进程
     while True:
         pass
-
-if __name__ == "__main__":
-
-    # 同时启动proxy 和 scan
-    p1 = Process(target=proxyStart)
-    p1.start()
-    p2 = Process(target=scanWork)
-    p2.start()
-

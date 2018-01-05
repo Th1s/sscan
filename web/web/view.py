@@ -5,8 +5,8 @@ import json
 
 from django.http import HttpResponse
 from django.shortcuts import render
+
 from doRedis.connectRedis import *
-from doRedis.config import redis_config
 
 
 def index(request):

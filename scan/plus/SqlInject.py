@@ -2,8 +2,8 @@
 # sqli scanner
 # by Th1s
 
-from lib.scanner import *
-from lib.config import sqli_config
+from scan.lib.scanner import *
+from scan.lib.config import sqli_config
 
 
 # sql 注入检测模块
