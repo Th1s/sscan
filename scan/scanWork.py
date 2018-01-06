@@ -33,7 +33,7 @@ def scan(r, queue, scan_modules):
     while True:
         row = queue.get()
         for module_name in scan_modules:
-            print module_name
+            # print module_name
             scan_module = importlib.import_module("scan.plus." + module_name)
             scan_module_class = getattr(scan_module,  module_name + "Scanner")
             scanner = scan_module_class(row['method'], row['url'], row['header'], row['cookie'], row['param'], row['data'])
